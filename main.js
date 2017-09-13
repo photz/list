@@ -10,7 +10,7 @@ my.List = function (items) {
   this.placeholder_ = document.createElement('div')
   this.placeholder_.classList.add('list__placeholder')
   items.forEach((item) => this.element_.appendChild(this.renderItem_(item)))
-  this.element_.addEventListener('mousedown', this.handleMouseDown_.bind(this))
+  document.addEventListener('mousedown', this.handleMouseDown_.bind(this))
   document.addEventListener('mousemove', this.handleMouseMove_.bind(this))
 }
 /** @return {Element} */
@@ -33,6 +33,7 @@ my.List.prototype.renderItem_ = function (item) {
   el.appendChild(content)
   return el
 }
+
 /**
  * @private
  */
@@ -42,7 +43,7 @@ my.List.prototype.handleMouseMove_ = function (ev) {
   this.dragged_.style.top = (ev.clientY + offset).toString() + 'px'
   this.dragged_.style.left = (ev.clientX + offset).toString() + 'px'
 
-  if (null === this.dragged_) return
+
   if (ev.target === this.placeholder_) return
   let itemEl = ev.target.parentNode
   if (undefined === itemEl.classList) return
@@ -69,6 +70,14 @@ my.List.prototype.handleMouseDown_ = function (ev) {
   else if (ev.target.classList.contains('list__placeholder')) {
     this.handleMouseDownOnPlaceholder_(ev)
   }
+  else if (null !== this.dragged_) {
+    this.placeholder_.remove()
+    this.releaseDraggedItem_()
+  }
+}
+my.List.prototype.releaseDraggedItem_ = function () {
+  this.dragged_.classList.remove('list__item--dragged')
+  this.dragged_ = null
 }
 /**
  * @private
