@@ -12,7 +12,6 @@ my.List = function (items) {
   items.forEach((item) => this.element_.appendChild(this.renderItem_(item)))
   this.element_.addEventListener('mousedown', this.handleMouseDown_.bind(this))
   document.addEventListener('mousemove', this.handleMouseMove_.bind(this))
-  document.addEventListener('mouseover', this.handleMouseOver_.bind(this))
 }
 /** @return {Element} */
 my.List.prototype.getElement = function () {
@@ -34,11 +33,15 @@ my.List.prototype.renderItem_ = function (item) {
   el.appendChild(content)
   return el
 }
-/** 
+/**
  * @private
  */
-my.List.prototype.handleMouseOver_ = function (ev) {
-  console.log('over')
+my.List.prototype.handleMouseMove_ = function (ev) {
+  if (null === this.dragged_) return
+  const offset = 10;
+  this.dragged_.style.top = (ev.clientY + offset).toString() + 'px'
+  this.dragged_.style.left = (ev.clientX + offset).toString() + 'px'
+
   if (null === this.dragged_) return
   if (ev.target === this.placeholder_) return
   let itemEl = ev.target.parentNode
@@ -54,16 +57,7 @@ my.List.prototype.handleMouseOver_ = function (ev) {
   }
   else {
     otherItem.insertAdjacentElement('beforebegin', this.placeholder_)
-  }
-}
-/**
- * @private
- */
-my.List.prototype.handleMouseMove_ = function (ev) {
-  if (null === this.dragged_) return
-  const offset = 10;
-  this.dragged_.style.top = (ev.clientY + offset).toString() + 'px'
-  this.dragged_.style.left = (ev.clientX + offset).toString() + 'px'
+  }  
 }
 /**
  * @private
