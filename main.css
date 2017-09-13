@@ -1,0 +1,26 @@
+.list {
+  
+}
+.list__item--dragged {
+  position: absolute;
+  background: green;
+}
+.list__item {
+  display: flex;
+}
+.list__handle {
+  background: grey;
+  width: 0.5rem;
+  cursor: pointer;
+}
+.list__content {
+  padding: 10px;
+}
+.list__placeholder {
+  min-height: 25px;
+  background: grey;
+  box-sizing: border-box;
+}
+.list__placeholder:hover {
+  background: #ddd;
+}
