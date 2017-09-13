@@ -1,17 +1,24 @@
+body {
+  font-family: sans;
+}
+
 .list {
   
 }
 .list__item--dragged {
   position: absolute;
-  background: green;
 }
 .list__item {
+  background: white;
   display: flex;
 }
 .list__handle {
   background: grey;
   width: 0.5rem;
   cursor: pointer;
+}
+.list__handle:hover {
+  background: #ddd;
 }
 .list__content {
   padding: 10px;
