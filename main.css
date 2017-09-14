@@ -12,6 +12,8 @@ body {
 }
 .tree__leaf {
   padding: 0.5rem;
+  background: #fff;
+  flex-grow: 1;
 }
 .tree__leaf--dragged {
   position: absolute;
@@ -24,6 +26,7 @@ body {
 }
 .tree__branch--dragged {
   position: absolute;
+  flex-grow: 1;
 }
 .tree__branch--row > .tree__content {
   flex-direction: row;
@@ -33,6 +36,10 @@ body {
 }
 .tree__content {
   display: flex;
+  background: rgb(240, 240, 240);
+  min-width: 30px;
+  min-height: 30px;
+  flex-grow: 1;
 }
 .tree__handle {
   width: 10px;

@@ -36,6 +36,9 @@ my.Tree.prototype.handleMouseMove_ = function (ev) {
   if (target.classList.contains('tree__leaf')) {
     this.handleHoverLeaf_(ev)
   }
+  else if (target.classList.contains('tree__content')) {
+    this.handleHoverContent_(ev)
+  }
 }
 my.Tree.prototype.handleHoverLeaf_ = function (ev) {
   if (!ev.target.classList.contains('tree__leaf')) {
@@ -93,6 +96,10 @@ my.Tree.prototype.handleClickOnPlaceholder_ = function (ev) {
   this.dragged_.classList.remove('tree__leaf--dragged')
   this.dragged_.classList.remove('tree__branch--dragged')
   this.dragged_ = null
+}
+my.Tree.prototype.handleHoverContent_ = function (ev) {
+  if (this.dragged_ === null) return
+  ev.target.appendChild(this.placeholder_)
 }
 my.Tree.prototype.handleClick_ = function (ev) {
   if (ev.target === this.placeholder_) {
