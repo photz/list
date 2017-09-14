@@ -261,6 +261,11 @@ window.addEventListener('load', () => {
               {
                 type: my.NodeType.LEAF,
                 content: 'Elixir'
+              },
+              {
+                type: my.NodeType.BRANCH,
+                direction: my.Direction.ROW,
+                children: []
               }
             ]
           }
