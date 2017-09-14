@@ -9,14 +9,20 @@ body {
   min-width: 20px;
   min-height: 20px;
   background: #ddd;
+  border-radius: 4px;
+  flex-grow: 1;
 }
 .tree__leaf {
   padding: 0.5rem;
   background: #fff;
-  flex-grow: 1;
+  border-radius: 4px;
+}
+.tree__leaf:hover {
+  
 }
 .tree__leaf--dragged {
   position: absolute;
+  border-radius: 4px;
 }
 .tree__branch {
   display: flex;
@@ -39,9 +45,31 @@ body {
   background: rgb(240, 240, 240);
   min-width: 30px;
   min-height: 30px;
+  padding: 5px;
   flex-grow: 1;
+}
+.tree__branch--row > .tree__content  > .tree__leaf,
+.tree__branch--row > .tree__content > .tree__branch,
+.tree__branch--row > .tree__content > .tree__placeholder {
+  margin-right: 5px;
+}
+.tree__branch--column > .tree__content  > .tree__leaf,
+.tree__branch--column > .tree__content > .tree__branch,
+.tree__branch--column > .tree__content > .tree__placeholder {
+  margin-bottom: 5px;
+}
+.tree__branch--row > .tree__content > .tree__leaf:last-child,
+.tree__branch--row > .tree__content > .tree__branch:last-child{
+  margin-right: 0;
+}
+.tree__branch--column > .tree__content > .tree__leaf:last-child,
+.tree__branch--column > .tree__content > .tree__branch:last-child{
+  margin-bottom: 0;
 }
 .tree__handle {
   width: 10px;
   background: #ccc;
+}
+.tree_branch:hover {
+  border: 1px solid black;
 }
