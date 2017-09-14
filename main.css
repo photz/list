@@ -31,3 +31,29 @@ body {
 .list__placeholder:hover {
   background: #ddd;
 }
+
+.tree {
+
+}
+.tree__leaf {
+  padding: 0.5rem;
+}
+.tree__branch {
+  display: flex;
+  flex-direction: row;
+  align-content: stretch;
+  align-items: stretch;
+}
+.tree__branch--row > .tree__content {
+  flex-direction: row;
+}
+.tree__branch--column > .tree__content {
+  flex-direction: column;
+}
+.tree__content {
+  display: flex;
+}
+.tree__handle {
+  width: 10px;
+  background: #ccc;
+}
