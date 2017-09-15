@@ -1,6 +1,7 @@
 let my = {}
 
 /**
+ * @param {Object} tree
  * @constructor
  */
 my.Tree = function (tree) {
@@ -45,29 +46,49 @@ my.Tree = function (tree) {
  * @type {number}
  */
 my.Tree.MIN_PLACEHOLDER_INTERVAL_ = 150
+
+/**
+ * @return {Element}
+ */
 my.Tree.prototype.createPlaceholder_ = function () {
   let el = document.createElement('div')
   el.classList.add('tree__placeholder')
   return el
 }
+
 /**
  * @return {Element}
  */
 my.Tree.prototype.getElement = function () {
   return this.element_
 }
+
+/**
+ * @return {void}
+ * @private
+ */
 my.Tree.prototype.handleMouseOver_ = function (ev) {
   if (ev.target.classList.contains('tree__leaf')) {
     const branchEl = ev.target.parentNode.parentNode
     this.highlightBranch_(branchEl, true)
   }
 }
+
+/**
+ * @return {void}
+ * @private
+ */
 my.Tree.prototype.handleMouseOut_ = function (ev) {
   if (ev.target.classList.contains('tree__leaf')) {
     const branchEl = ev.target.parentNode.parentNode
     this.highlightBranch_(branchEl, false)
   }
 }
+
+/**
+ * @return {void}
+ * @private
+ */
 my.Tree.prototype.handleMouseMove_ = function (ev) {
   if (this.dragged_ === null) return
   const offset = 10
@@ -84,6 +105,12 @@ my.Tree.prototype.handleMouseMove_ = function (ev) {
     this.handleHoverBranch_(ev)
   }
 }
+
+/**
+ * @param {MouseEvent} ev
+ * @return {void}
+ * @private
+ */
 my.Tree.prototype.handleHoverBranch_ = function (ev) {
   if (this.dragged_ === null) return
   const rect = ev.target.getBoundingClientRect()
@@ -120,6 +147,12 @@ my.Tree.prototype.handleHoverBranch_ = function (ev) {
     ev.target.insertAdjacentElement(placeholderLocation, this.placeholder_)
   }
 }
+
+/**
+ * @param {MouseEvent} ev
+ * @return {void}
+ * @private
+ */
 my.Tree.prototype.handleHoverLeaf_ = function (ev) {
   if (!ev.target.classList.contains('tree__leaf')) {
     throw new Error('expected a leaf')
@@ -159,8 +192,9 @@ my.Tree.prototype.handleHoverLeaf_ = function (ev) {
     ev.target.insertAdjacentElement(insertion, this.placeholder_)
   }
 }
+
 /**
- * @param {Element} leaf
+ * @param {Element} branchEl
  * @param {boolean} highlight
  * @private
  * @return {void}
@@ -174,11 +208,21 @@ my.Tree.prototype.highlightBranch_ = function (branchEl, highlight) {
     branchEl.classList.remove(modifier)
   }
 }
+
+/**
+ * @return {void}
+ * @private
+ */
 my.Tree.prototype.handleClickOnLeaf_ = function (ev) {
   if (this.dragged_ !== null) return
   ev.target.classList.add('tree__leaf--dragged')
   this.dragged_ = ev.target
 }
+
+/**
+ * @return {void}
+ * @private
+ */
 my.Tree.prototype.handleClickOnHandle_ = function (ev) {
   if (this.dragged_ !== null) return
   let branchEl = ev.target.parentNode
@@ -188,14 +232,46 @@ my.Tree.prototype.handleClickOnHandle_ = function (ev) {
   branchEl.classList.add('tree__leaf--dragged')
   this.dragged_ = branchEl  
 }
+
+/**
+ * @param {MouseEvent} ev
+ * @return {void}
+ * @private
+ */
 my.Tree.prototype.handleClickOnPlaceholder_ = function (ev) {
   if (this.dragged_ === null) return
+  const childId = parseInt(this.dragged_.dataset['id'], 10)
+  const parentEl = this.placeholder_.parentNode.parentNode
+  const parentId = parseInt(parentEl.dataset['id'], 10)
   this.placeholder_.insertAdjacentElement('beforebegin', this.dragged_)
   this.placeholder_.remove()
   this.dragged_.classList.remove('tree__leaf--dragged')
   this.dragged_.classList.remove('tree__branch--dragged')
   this.dragged_ = null
+  console.log('putting', childId, 'into', parentId)
+  console.log('new order:', this.getIds_(parentEl))
 }
+
+/**
+ * @param {Element} branchEl
+ * @return {Array.<number>}
+ * @private
+ */
+my.Tree.prototype.getIds_ = function (branchEl) {
+  if (!branchEl.classList.contains('tree__branch')) {
+    throw new Error('element is missing class tree__branch')
+  }
+  const children = branchEl.querySelector('.tree__content').childNodes
+
+  return Array.prototype.map.call(children, (child) => {
+    return parseInt(child.dataset['id'], 10)
+  })
+}
+
+/**
+ * @return {void}
+ * @private
+ */
 my.Tree.prototype.handleHoverContent_ = function (ev) {
   if (this.dragged_ === null) return
   const now = Date.now()
@@ -204,6 +280,11 @@ my.Tree.prototype.handleHoverContent_ = function (ev) {
     ev.target.appendChild(this.placeholder_)
   }
 }
+
+/**
+ * @return {void}
+ * @private
+ */
 my.Tree.prototype.handleClick_ = function (ev) {
   if (ev.target === this.placeholder_) {
     this.handleClickOnPlaceholder_(ev)
@@ -215,6 +296,7 @@ my.Tree.prototype.handleClick_ = function (ev) {
     this.handleClickOnHandle_(ev)
   }
 }
+
 /**
  * @return {Element}
  * @private
@@ -228,6 +310,8 @@ my.Tree.prototype.renderTree_ = function(tree) {
     element: rootEl,
     children: tree.children
   })
+
+  let current = null
 
   while (current = stack.pop()) {
     const fragment = current.children.reduce((acc, child) => {
@@ -256,6 +340,7 @@ my.Tree.prototype.renderTree_ = function(tree) {
   }
   return rootEl
 }
+
 /**
  * @param {string} content
  * @return {Element}
@@ -269,10 +354,11 @@ my.Tree.prototype.createLeaf_ = function (id, content) {
   el.innerHTML = content
   return el
 }
+
 /**
  * @param {number} id
  * @param {my.Direction} direction
- * @param {?boolean} opt_root
+ * @param {boolean=} opt_root
  * @return {Element}
  * @private
  */
@@ -304,19 +390,19 @@ my.Tree.prototype.createBranch_ = function (id, direction, opt_root) {
 }
 
 /**
- * @enum
+ * @enum {number}
  */
 my.NodeType = {
-  BRANCH: 'node',
-  LEAF: 'leaf'
+  BRANCH: 0,
+  LEAF: 1
 }
 
 /**
- * @enum
+ * @enum {number}
  */
 my.Direction = {
-  ROW: 'row',
-  COLUMN: 'column'
+  ROW: 0,
+  COLUMN: 1
 }
 
 window.addEventListener('load', () => {
