@@ -12,6 +12,10 @@ my.Tree = function (tree) {
                                  this.handleMouseMove_.bind(this))
   this.element_.addEventListener('click',
                                  this.handleClick_.bind(this))
+  this.element_.addEventListener('mouseover',
+                                 this.handleMouseOver_.bind(this))
+  this.element_.addEventListener('mouseout',
+                                 this.handleMouseOut_.bind(this))
   this.dragged_ = null
   this.placeholder_ = this.createPlaceholder_()
 }
@@ -25,6 +29,18 @@ my.Tree.prototype.createPlaceholder_ = function () {
  */
 my.Tree.prototype.getElement = function () {
   return this.element_
+}
+my.Tree.prototype.handleMouseOver_ = function (ev) {
+  if (ev.target.classList.contains('tree__leaf')) {
+    const branchEl = ev.target.parentNode.parentNode
+    this.highlightBranch_(branchEl, true)
+  }
+}
+my.Tree.prototype.handleMouseOut_ = function (ev) {
+  if (ev.target.classList.contains('tree__leaf')) {
+    const branchEl = ev.target.parentNode.parentNode
+    this.highlightBranch_(branchEl, false)
+  }
 }
 my.Tree.prototype.handleMouseMove_ = function (ev) {
   if (this.dragged_ === null) return
@@ -109,6 +125,21 @@ my.Tree.prototype.handleHoverLeaf_ = function (ev) {
   }
   ev.target.insertAdjacentElement(insertion, this.placeholder_)
 }
+/**
+ * @param {Element} leaf
+ * @param {boolean} highlight
+ * @private
+ * @return {void}
+ */
+my.Tree.prototype.highlightBranch_ = function (branchEl, highlight) {
+  const modifier = 'tree__branch--highlighted'
+  if (highlight) {
+    branchEl.classList.add(modifier)
+  }
+  else {
+    branchEl.classList.remove(modifier)
+  }
+}
 my.Tree.prototype.handleClickOnLeaf_ = function (ev) {
   if (this.dragged_ !== null) return
   ev.target.classList.add('tree__leaf--dragged')
@@ -161,9 +192,7 @@ my.Tree.prototype.renderTree_ = function(tree) {
   })
 
   while (current = stack.pop()) {
-    const acc =  current.element.querySelector('.tree__content')
-
-    current.children.reduce((acc, child) => {
+    const fragment = current.children.reduce((acc, child) => {
       let childEl = null
 
       switch (child.type) {
@@ -183,8 +212,9 @@ my.Tree.prototype.renderTree_ = function(tree) {
       acc.appendChild(childEl)
 
       return acc
-    }, acc)
+    }, document.createDocumentFragment())
 
+    current.element.querySelector('.tree__content').appendChild(fragment)
   }
   return rootEl
 }
