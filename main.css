@@ -30,6 +30,9 @@ body {
   align-content: stretch;
   align-items: stretch;
 }
+.tree__branch--root > .tree__handle {
+  display: none;
+}
 .tree__branch--dragged {
   position: absolute;
   flex-grow: 1;

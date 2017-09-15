@@ -116,7 +116,7 @@ my.Tree.prototype.handleClick_ = function (ev) {
  * @private
  */
 my.Tree.prototype.renderTree_ = function(tree) {
-  const rootEl = this.createBranch_(tree.id, tree.direction)
+  const rootEl = this.createBranch_(tree.id, tree.direction, true)
 
   const stack = new Array()
 
@@ -164,13 +164,17 @@ my.Tree.prototype.createLeaf_ = function (id, content) {
   return el
 }
 /**
+ * @param {number} id
  * @param {my.Direction} direction
+ * @param {?boolean} opt_root
  * @return {Element}
  * @private
  */
-my.Tree.prototype.createBranch_ = function (id, direction) {
+my.Tree.prototype.createBranch_ = function (id, direction, opt_root) {
+  opt_root = opt_root || false
   if (typeof id !== 'number') throw new TypeError('id must be a number')
   let el = document.createElement('div')
+  if (opt_root) el.classList.add('tree__branch--root')
   el.dataset['id'] = id.toString()
   el.classList.add('tree__branch')
   let dirMod = ''
