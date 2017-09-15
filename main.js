@@ -292,6 +292,28 @@ window.addEventListener('load', () => {
                 id: 16,
                 direction: my.Direction.ROW,
                 children: []
+              },
+              {
+                type: my.NodeType.BRANCH,
+                id: 17,
+                direction: my.Direction.ROW,
+                children: [
+                  {
+                    type: my.NodeType.LEAF,
+                    id: 18,
+                    content: 'Rust'
+                  },
+                  {
+                    type: my.NodeType.LEAF,
+                    id: 19,
+                    content: 'Pascal'
+                  },
+                  {
+                    type: my.NodeType.LEAF,
+                    id: 20,
+                    content: 'Clojure'
+                  }
+                ]
               }
             ]
           }
