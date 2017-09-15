@@ -126,26 +126,29 @@ my.Tree.prototype.renderTree_ = function(tree) {
   })
 
   while (current = stack.pop()) {
-    current.children.forEach((child) => {
+    const acc =  current.element.querySelector('.tree__content')
 
+    current.children.reduce((acc, child) => {
       let childEl = null
 
-      if (child.type === my.NodeType.BRANCH) {
+      switch (child.type) {
+      case my.NodeType.BRANCH:
         childEl = this.createBranch_(child.id, child.direction)
         stack.push({element: childEl, children: child.children})
-      }
-      else if (child.type === my.NodeType.LEAF) {
+        break;
+
+      case my.NodeType.LEAF:
         childEl = this.createLeaf_(child.id, child.content)
-      }
-      else {
+        break;
+
+      default:
         throw new TypeError('unknown node type')
       }
 
-      current
-        .element
-        .querySelector('.tree__content')
-        .appendChild(childEl)
-    })
+      acc.appendChild(childEl)
+
+      return acc
+    }, acc)
 
   }
   return rootEl
