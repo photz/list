@@ -4,6 +4,10 @@ let my = {}
  * @constructor
  */
 my.Tree = function (tree) {
+  /**
+   * @type {?Element}
+   * @private
+   */
   this.element_ = document.createElement('div')
   this.element_.classList.add('tree')
   let rendered = this.renderTree_(tree)
@@ -16,9 +20,31 @@ my.Tree = function (tree) {
                                  this.handleMouseOver_.bind(this))
   this.element_.addEventListener('mouseout',
                                  this.handleMouseOut_.bind(this))
+  /**
+   * @type {?Element}
+   * @private
+   */
   this.dragged_ = null
+
+  /**
+   * @type {Element}
+   * @private
+   */
   this.placeholder_ = this.createPlaceholder_()
+
+  /**
+   * A timestamp that is updated when the placeholder is moved
+   * @type {number}
+   * @private
+   */
+  this.placeholderUpdated_ = 0
 }
+/**
+ * Number of miliseconds that must pass after the placeholder's
+ * position has been moved and before it is moved again.
+ * @type {number}
+ */
+my.Tree.MIN_PLACEHOLDER_INTERVAL_ = 150
 my.Tree.prototype.createPlaceholder_ = function () {
   let el = document.createElement('div')
   el.classList.add('tree__placeholder')
@@ -88,7 +114,11 @@ my.Tree.prototype.handleHoverBranch_ = function (ev) {
   else {
     placeholderLocation = 'afterend'
   }
-  ev.target.insertAdjacentElement(placeholderLocation, this.placeholder_)
+  const now = Date.now()
+  if (my.Tree.MIN_PLACEHOLDER_INTERVAL_ < now - this.placeholderUpdated_) {
+    this.placeholderUpdated_ = now
+    ev.target.insertAdjacentElement(placeholderLocation, this.placeholder_)
+  }
 }
 my.Tree.prototype.handleHoverLeaf_ = function (ev) {
   if (!ev.target.classList.contains('tree__leaf')) {
@@ -123,7 +153,11 @@ my.Tree.prototype.handleHoverLeaf_ = function (ev) {
   else {
     insertion = 'afterend'
   }
-  ev.target.insertAdjacentElement(insertion, this.placeholder_)
+  const now = Date.now()
+  if (my.Tree.MIN_PLACEHOLDER_INTERVAL_ < now - this.placeholderUpdated_) {
+    this.placeholderUpdated_ = now
+    ev.target.insertAdjacentElement(insertion, this.placeholder_)
+  }
 }
 /**
  * @param {Element} leaf
@@ -164,7 +198,11 @@ my.Tree.prototype.handleClickOnPlaceholder_ = function (ev) {
 }
 my.Tree.prototype.handleHoverContent_ = function (ev) {
   if (this.dragged_ === null) return
-  ev.target.appendChild(this.placeholder_)
+  const now = Date.now()
+  if (my.Tree.MIN_PLACEHOLDER_INTERVAL_ < now - this.placeholderUpdated_) {
+    this.placeholderUpdated_ = now
+    ev.target.appendChild(this.placeholder_)
+  }
 }
 my.Tree.prototype.handleClick_ = function (ev) {
   if (ev.target === this.placeholder_) {
