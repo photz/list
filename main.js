@@ -32,7 +32,6 @@ my.Tree.prototype.handleMouseMove_ = function (ev) {
   this.dragged_.style.top = (ev.clientY + offset).toString() + 'px'
   this.dragged_.style.left = (ev.clientX + offset).toString() + 'px'
   const target = ev.target
-  //if (!(target instanceof Element)) return
   if (target.classList.contains('tree__leaf')) {
     this.handleHoverLeaf_(ev)
   }
@@ -117,7 +116,7 @@ my.Tree.prototype.handleClick_ = function (ev) {
  * @private
  */
 my.Tree.prototype.renderTree_ = function(tree) {
-  const rootEl = this.createBranch_(tree.direction)
+  const rootEl = this.createBranch_(tree.id, tree.direction)
 
   const stack = new Array()
 
@@ -132,11 +131,11 @@ my.Tree.prototype.renderTree_ = function(tree) {
       let childEl = null
 
       if (child.type === my.NodeType.BRANCH) {
-        childEl = this.createBranch_(child.direction)
+        childEl = this.createBranch_(child.id, child.direction)
         stack.push({element: childEl, children: child.children})
       }
       else if (child.type === my.NodeType.LEAF) {
-        childEl = this.createLeaf_(child.content)
+        childEl = this.createLeaf_(child.id, child.content)
       }
       else {
         throw new TypeError('unknown node type')
@@ -156,8 +155,10 @@ my.Tree.prototype.renderTree_ = function(tree) {
  * @return {Element}
  * @private
  */
-my.Tree.prototype.createLeaf_ = function (content) {
+my.Tree.prototype.createLeaf_ = function (id, content) {
+  if (typeof id !== 'number') throw new TypeError('id must be a number')
   let el = document.createElement('div')
+  el.dataset['id'] = id.toString()
   el.classList.add('tree__leaf')
   el.innerHTML = content
   return el
@@ -167,8 +168,10 @@ my.Tree.prototype.createLeaf_ = function (content) {
  * @return {Element}
  * @private
  */
-my.Tree.prototype.createBranch_ = function (direction) {
+my.Tree.prototype.createBranch_ = function (id, direction) {
+  if (typeof id !== 'number') throw new TypeError('id must be a number')
   let el = document.createElement('div')
+  el.dataset['id'] = id.toString()
   el.classList.add('tree__branch')
   let dirMod = ''
   if (direction === my.Direction.ROW) {
@@ -212,65 +215,81 @@ window.addEventListener('load', () => {
   const treeData = {
     type: my.NodeType.BRANCH,
     direction: my.Direction.COLUMN,
+    id: 1,
     children: [
       {
         type: my.NodeType.LEAF,
+        id: 2,
         content: 'OCaml'
       },
       {
         type: my.NodeType.LEAF,
+        id: 3,
         content: 'Smalltalk'
       },
       {
         type: my.NodeType.LEAF,
+        id: 4,
         content: 'Swift'
       },
       {
         type: my.NodeType.LEAF,
+        id: 5,
         content: 'Racket'
       },
       {
         type: my.NodeType.LEAF,
+        id: 6,
         content: 'Dart'
       },
       {
         type: my.NodeType.BRANCH,
+        id: 7,
         direction: my.Direction.ROW,
         children: [
           {
             type: my.NodeType.LEAF,
+            id: 8,
             content: 'Common LISP'
           },
           {
             type: my.NodeType.LEAF,
+            id: 9,
             content: 'Scheme'
           },
           {
             type: my.NodeType.LEAF,
+            id: 10,
             content: 'Python'
           },
           {
             type: my.NodeType.BRANCH,
+            id: 11,
             direction: my.Direction.COLUMN,
             children: [
               {
                 type: my.NodeType.LEAF,
+                id: 12,
                 content: 'COBOL'
               },
               {
                 type: my.NodeType.LEAF,
+                id: 13,
                 content: 'C++'
               },
               {
                 type: my.NodeType.LEAF,
+                id: 14,
                 content: 'Java'
               },
               {
                 type: my.NodeType.LEAF,
+                id: 15,
                 content: 'Elixir'
               },
               {
                 type: my.NodeType.BRANCH,
+                id: 16,
                 direction: my.Direction.ROW,
                 children: []
               }
