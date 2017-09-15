@@ -38,6 +38,41 @@ my.Tree.prototype.handleMouseMove_ = function (ev) {
   else if (target.classList.contains('tree__content')) {
     this.handleHoverContent_(ev)
   }
+  else if (target.classList.contains('tree__branch')) {
+    this.handleHoverBranch_(ev)
+  }
+}
+my.Tree.prototype.handleHoverBranch_ = function (ev) {
+  if (this.dragged_ === null) return
+  const rect = ev.target.getBoundingClientRect()
+  let direction = null
+  if (ev.target.classList.contains('tree__branch--row')) {
+    direction = my.Direction.ROW
+  }
+  else if (ev.target.classList.contains('tree__branch--column')) {
+    direction = my.Direction.COLUMN
+  }
+  else {
+    throw new Error('unknown direction')
+  }
+  let mouse = 0
+  let center = 0
+  if (direction === my.Direction.ROW) {
+    center = rect.left + rect.width / 2
+    mouse = ev.clientX
+  }
+  else {
+    center = rect.top + rect.height / 2
+    mouse = ev.clientY
+  }
+  let placeholderLocation = ''
+  if (mouse < center) {
+    placeholderLocation = 'beforebegin'
+  }
+  else {
+    placeholderLocation = 'afterend'
+  }
+  ev.target.insertAdjacentElement(placeholderLocation, this.placeholder_)
 }
 my.Tree.prototype.handleHoverLeaf_ = function (ev) {
   if (!ev.target.classList.contains('tree__leaf')) {

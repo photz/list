@@ -29,6 +29,8 @@ body {
   flex-direction: row;
   align-content: stretch;
   align-items: stretch;
+  border: 5px solid #ccc;
+  border-radius: 4px;
 }
 .tree__branch--root > .tree__handle {
   display: none;
