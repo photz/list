@@ -11,8 +11,7 @@ my.Tree = function (tree) {
    */
   this.element_ = document.createElement('div')
   this.element_.classList.add('tree')
-  let rendered = this.renderTree_(tree)
-  this.element_.appendChild(rendered)
+  this.element_.appendChild(this.renderTree_(tree))
   this.element_.addEventListener('mousemove',
                                  this.handleMouseMove_.bind(this))
   this.element_.addEventListener('click',
@@ -113,6 +112,8 @@ my.Tree.prototype.handleMouseMove_ = function (ev) {
  */
 my.Tree.prototype.handleHoverBranch_ = function (ev) {
   if (this.dragged_ === null) return
+  const now = Date.now()
+  if (my.Tree.MIN_PLACEHOLDER_INTERVAL_ < now - this.placeholderUpdated_) {
   const rect = ev.target.getBoundingClientRect()
   let direction = null
   if (ev.target.classList.contains('tree__branch--row')) {
@@ -141,8 +142,6 @@ my.Tree.prototype.handleHoverBranch_ = function (ev) {
   else {
     placeholderLocation = 'afterend'
   }
-  const now = Date.now()
-  if (my.Tree.MIN_PLACEHOLDER_INTERVAL_ < now - this.placeholderUpdated_) {
     this.placeholderUpdated_ = now
     ev.target.insertAdjacentElement(placeholderLocation, this.placeholder_)
   }
@@ -210,16 +209,19 @@ my.Tree.prototype.highlightBranch_ = function (branchEl, highlight) {
 }
 
 /**
+ * @param {MouseEvent} ev
  * @return {void}
  * @private
  */
 my.Tree.prototype.handleClickOnLeaf_ = function (ev) {
+  if (!(ev.target instanceof Element)) return
   if (this.dragged_ !== null) return
   ev.target.classList.add('tree__leaf--dragged')
   this.dragged_ = ev.target
 }
 
 /**
+ * @param {MouseEvent} ev
  * @return {void}
  * @private
  */
@@ -269,6 +271,7 @@ my.Tree.prototype.getIds_ = function (branchEl) {
 }
 
 /**
+ * @param {MouseEvent} ev
  * @return {void}
  * @private
  */
@@ -282,10 +285,12 @@ my.Tree.prototype.handleHoverContent_ = function (ev) {
 }
 
 /**
+ * @param {Event} ev
  * @return {void}
  * @private
  */
 my.Tree.prototype.handleClick_ = function (ev) {
+  if (!(ev instanceof MouseEvent)) return
   if (ev.target === this.placeholder_) {
     this.handleClickOnPlaceholder_(ev)
   }
@@ -298,12 +303,14 @@ my.Tree.prototype.handleClick_ = function (ev) {
 }
 
 /**
+ * @param {Object} tree
  * @return {Element}
  * @private
  */
 my.Tree.prototype.renderTree_ = function(tree) {
   const rootEl = this.createBranch_(tree.id, tree.direction, true)
 
+  /** @type {Array.<Object>} */
   const stack = new Array()
 
   stack.push({
@@ -351,7 +358,7 @@ my.Tree.prototype.createLeaf_ = function (id, content) {
   let el = document.createElement('div')
   el.dataset['id'] = id.toString()
   el.classList.add('tree__leaf')
-  el.innerHTML = content
+  el.textContent = content
   return el
 }
 
