@@ -1,7 +1,7 @@
-let my = {}
+/** @const */ let my = {}
 
 /**
- * @param {Object} tree
+ * @param {my.Node} tree
  * @constructor
  */
 my.Tree = function (tree) {
@@ -11,7 +11,7 @@ my.Tree = function (tree) {
    */
   this.element_ = document.createElement('div')
   this.element_.classList.add('tree')
-  this.element_.appendChild(this.renderTree_(tree))
+  this.element_.appendChild(my.Tree.renderTree_(tree))
   this.element_.addEventListener('mousemove',
                                  this.handleMouseMove_.bind(this))
   this.element_.addEventListener('click',
@@ -42,7 +42,7 @@ my.Tree = function (tree) {
 /**
  * Number of miliseconds that must pass after the placeholder's
  * position has been moved and before it is moved again.
- * @type {number}
+ * @const {number}
  */
 my.Tree.MIN_PLACEHOLDER_INTERVAL_ = 150
 
@@ -114,34 +114,34 @@ my.Tree.prototype.handleHoverBranch_ = function (ev) {
   if (this.dragged_ === null) return
   const now = Date.now()
   if (my.Tree.MIN_PLACEHOLDER_INTERVAL_ < now - this.placeholderUpdated_) {
-  const rect = ev.target.getBoundingClientRect()
-  let direction = null
-  if (ev.target.classList.contains('tree__branch--row')) {
-    direction = my.Direction.ROW
-  }
-  else if (ev.target.classList.contains('tree__branch--column')) {
-    direction = my.Direction.COLUMN
-  }
-  else {
-    throw new Error('unknown direction')
-  }
-  let mouse = 0
-  let center = 0
-  if (direction === my.Direction.ROW) {
-    center = rect.left + rect.width / 2
-    mouse = ev.clientX
-  }
-  else {
-    center = rect.top + rect.height / 2
-    mouse = ev.clientY
-  }
-  let placeholderLocation = ''
-  if (mouse < center) {
-    placeholderLocation = 'beforebegin'
-  }
-  else {
-    placeholderLocation = 'afterend'
-  }
+    const rect = ev.target.getBoundingClientRect()
+    let direction = null
+    if (ev.target.classList.contains('tree__branch--row')) {
+      direction = my.Direction.ROW
+    }
+    else if (ev.target.classList.contains('tree__branch--column')) {
+      direction = my.Direction.COLUMN
+    }
+    else {
+      throw new Error('unknown direction')
+    }
+    let mouse = 0
+    let center = 0
+    if (direction === my.Direction.ROW) {
+      center = rect.left + rect.width / 2
+      mouse = ev.clientX
+    }
+    else {
+      center = rect.top + rect.height / 2
+      mouse = ev.clientY
+    }
+    let placeholderLocation = ''
+    if (mouse < center) {
+      placeholderLocation = 'beforebegin'
+    }
+    else {
+      placeholderLocation = 'afterend'
+    }
     this.placeholderUpdated_ = now
     ev.target.insertAdjacentElement(placeholderLocation, this.placeholder_)
   }
@@ -302,16 +302,52 @@ my.Tree.prototype.handleClick_ = function (ev) {
   }
 }
 
+
 /**
- * @param {Object} tree
+ * @param {{frag:DocumentFragment,stack:Array}} acc
+ * @param {my.Node} child
+ * @return {{frag:DocumentFragment,stack:Array}}
+ * @private
+ */
+my.Tree.addChild_ = function (acc, child) {
+  let childEl = null
+
+  switch (child.type) {
+  case my.NodeType.BRANCH:
+    if (undefined === child.direction) throw new Error()
+    childEl = my.Tree.createBranch_(child.id, child.direction)
+    acc.stack.push({element: childEl, children: child.children})
+    break;
+
+  case my.NodeType.LEAF:
+    if (undefined === child.content) throw new Error()
+    childEl = my.Tree.createLeaf_(child.id, child.content)
+    break;
+
+  default:
+    throw new TypeError('unknown node type')
+  }
+
+  acc.frag.appendChild(childEl)
+
+  return acc
+}
+
+
+/**
+ * @param {my.Node} tree
  * @return {Element}
  * @private
  */
-my.Tree.prototype.renderTree_ = function(tree) {
-  const rootEl = this.createBranch_(tree.id, tree.direction, true)
+my.Tree.renderTree_ = function(tree) {
+  if (undefined === tree.direction) throw new Error('missing direction')
 
-  /** @type {Array.<Object>} */
+  const rootEl = my.Tree.createBranch_(tree.id, tree.direction, true)
+
+  /** @type {Array.<{element:Element,children:Array.<my.Node>}>} */
   const stack = new Array()
+
+  if (undefined === tree.children) throw new Error('missing children')
 
   stack.push({
     element: rootEl,
@@ -321,29 +357,14 @@ my.Tree.prototype.renderTree_ = function(tree) {
   let current = null
 
   while (current = stack.pop()) {
-    const fragment = current.children.reduce((acc, child) => {
-      let childEl = null
+    const acc = {
+      frag: document.createDocumentFragment(),
+      stack: stack
+    }
 
-      switch (child.type) {
-      case my.NodeType.BRANCH:
-        childEl = this.createBranch_(child.id, child.direction)
-        stack.push({element: childEl, children: child.children})
-        break;
+    const ret = current.children.reduce(my.Tree.addChild_, acc)
 
-      case my.NodeType.LEAF:
-        childEl = this.createLeaf_(child.id, child.content)
-        break;
-
-      default:
-        throw new TypeError('unknown node type')
-      }
-
-      acc.appendChild(childEl)
-
-      return acc
-    }, document.createDocumentFragment())
-
-    current.element.querySelector('.tree__content').appendChild(fragment)
+    current.element.querySelector('.tree__content').appendChild(ret.frag)
   }
   return rootEl
 }
@@ -353,7 +374,7 @@ my.Tree.prototype.renderTree_ = function(tree) {
  * @return {Element}
  * @private
  */
-my.Tree.prototype.createLeaf_ = function (id, content) {
+my.Tree.createLeaf_ = function (id, content) {
   if (typeof id !== 'number') throw new TypeError('id must be a number')
   let el = document.createElement('div')
   el.dataset['id'] = id.toString()
@@ -369,7 +390,7 @@ my.Tree.prototype.createLeaf_ = function (id, content) {
  * @return {Element}
  * @private
  */
-my.Tree.prototype.createBranch_ = function (id, direction, opt_root) {
+my.Tree.createBranch_ = function (id, direction, opt_root) {
   opt_root = opt_root || false
   if (typeof id !== 'number') throw new TypeError('id must be a number')
   let el = document.createElement('div')
@@ -412,9 +433,21 @@ my.Direction = {
   COLUMN: 1
 }
 
+/**
+ * @typedef {{
+ * id:number,
+ * content: (string|undefined),
+ * children: (Array.<my.Node>|undefined),
+ * direction: (my.Direction|undefined),
+ * type: my.NodeType
+ * }}
+ */
+my.Node;
+
 window.addEventListener('load', () => {
   let container = document.querySelector('.container')
 
+  /** @type {my.Node} */
   const treeData = {
     type: my.NodeType.BRANCH,
     direction: my.Direction.COLUMN,
